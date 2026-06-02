@@ -13,9 +13,14 @@ import {
 } from "@/modules/teacher-assistant/api/teacherAssistantApi";
 import { User } from "@/modules/teacher-assistant/types";
 
+type LoginResult = {
+  success: boolean;
+  error?: string;
+};
+
 interface AuthContextType {
   user: User | null;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<LoginResult>;
   logout: () => void;
   reloadProfile: () => Promise<void>;
   isLoading: boolean;
@@ -69,7 +74,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const tokens = await teacherAssistantApi.login(username, password);
       if (!tokens.access || !tokens.refresh) {
-        return false;
+        return {
+          success: false,
+          error: "Respuesta de autenticación inválida.",
+        };
       }
 
       setTokens(tokens.access, tokens.refresh);
@@ -79,9 +87,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("ta_user", JSON.stringify(profile));
       redirectByRole(profile.role);
 
-      return true;
-    } catch {
-      return false;
+      return { success: true };
+    } catch (error) {
+      if (error instanceof teacherAssistantApi.ApiHttpError) {
+        if (error.status === 401) {
+          return {
+            success: false,
+            error: "Credenciales incorrectas. Inténtalo de nuevo.",
+          };
+        }
+
+        return {
+          success: false,
+          error: `Error del servidor (${error.status}). Verifica la API.`,
+        };
+      }
+
+      return {
+        success: false,
+        error: "No se pudo conectar con el backend. Revisa VITE_API_BASE_URL.",
+      };
     } finally {
       setIsLoading(false);
     }

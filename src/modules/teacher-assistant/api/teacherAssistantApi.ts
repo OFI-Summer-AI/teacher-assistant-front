@@ -11,9 +11,24 @@ import {
   User,
 } from "@/modules/teacher-assistant/types"
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000"
 const ACCESS_TOKEN_KEY = "ta_access_token"
 const REFRESH_TOKEN_KEY = "ta_refresh_token"
+
+const DEFAULT_DEV_API_BASE_URL = "http://127.0.0.1:8000"
+const DEFAULT_PROD_API_BASE_URL = "https://ofiservices.pythonanywhere.com"
+
+const resolveApiBaseUrl = () => {
+  const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
+
+  if (configuredBaseUrl) {
+    return configuredBaseUrl
+  }
+
+  // Keep local DX with localhost, but avoid accidental localhost fallback in deployed builds.
+  return import.meta.env.DEV ? DEFAULT_DEV_API_BASE_URL : DEFAULT_PROD_API_BASE_URL
+}
+
+const API_BASE_URL = resolveApiBaseUrl()
 
 type RequestMethod = "GET" | "POST" | "PATCH"
 

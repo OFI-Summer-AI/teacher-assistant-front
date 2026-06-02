@@ -18,9 +18,9 @@ export default function LoginPage() {
     setError("")
     setIsLoading(true)
 
-    const success = await login(username, password)
-    if (!success) {
-      setError("Credenciales incorrectas. Inténtalo de nuevo.")
+    const result = await login(username, password)
+    if (!result.success) {
+      setError(result.error ?? "No se pudo iniciar sesión.")
     }
     setIsLoading(false)
   }

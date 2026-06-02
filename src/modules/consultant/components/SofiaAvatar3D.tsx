@@ -17,7 +17,7 @@ interface AvatarModelProps {
   isHappy: boolean;
 }
 
-const READY_PLAYER_ME_MODEL_URL = 'https://models.readyplayer.me/6996ded0d9645a11b168ace8.glb';
+const READY_PLAYER_ME_MODEL_URL = '/avatar-aHD9e6G2mY24yEpignYm.glb';
 
 interface MorphBinding {
   mesh: THREE.Mesh;
